@@ -1,0 +1,39 @@
+services:
+  # The Relational Database for Structured Data (Users, Note Metadata)
+  postgres_db:
+    image: postgres:latest
+    container_name: notes_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: notes_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  # The Object Storage for Unstructured Data (PDF Files)
+  minio_storage:
+    image: minio/minio:latest
+    container_name: notes_minio
+    restart: always
+    ports:
+      - "9000:9000" # API port
+      - "9001:9001" # Web Console port
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+    # The Anti-Virus Service
+  clamav:
+    image: clamav/clamav:latest
+    ports:
+      - "3310:3310" # Default ClamAV port
+
+volumes:
+  postgres_data:
+  minio_data:
